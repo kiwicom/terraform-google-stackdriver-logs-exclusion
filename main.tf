@@ -43,7 +43,7 @@ resource "google_logging_project_exclusion" "k8s_system_nginx" {
   filter = <<EOT
 resource.type="k8s_container"
 resource.labels.namespace_name="system"
-resource.labels.container="nginx"
+resource.labels.container_name="nginx"
 ${var.exclude_k8s_system_nginx_severity_expression}
 ( ( trace:* sample(trace, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) OR
   ( NOT trace:* operation.id:* sample(operation.id, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) OR
