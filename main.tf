@@ -7,6 +7,7 @@ resource "google_logging_project_exclusion" "global_lb" {
 
   filter = <<EOT
 resource.type="http_load_balancer"
+${var.exclude_glb_https_requests_only == true ? "httpRequest.requestUrl:\"http://\"" : ""}
 ${var.exclude_glb_severity_expression}
 ( ( trace:* sample(trace, ${var.exclude_glb_percent == 100 ? 1 : "0.${var.exclude_glb_percent}00000000000001"}) ) OR
   ( NOT trace:* operation.id:* sample(operation.id, ${var.exclude_glb_percent == 100 ? 1 : "0.${var.exclude_glb_percent}00000000000001"}) ) OR

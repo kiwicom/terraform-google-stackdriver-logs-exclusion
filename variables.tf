@@ -11,6 +11,12 @@ variable "exclude_glb_severity_expression" {
   description = "Logs severity expression for GCP Global Load Balancer logs"
 }
 
+variable "exclude_glb_https_requests_only" {
+  type        = bool
+  default     = false
+  description = "Set to true if you want to exclude only https requests"
+}
+
 // k8s non-system containers
 variable "exclude_k8s_containers_namespace_whistelist" {
   type = list(string)
