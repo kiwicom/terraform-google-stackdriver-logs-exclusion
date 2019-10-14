@@ -24,7 +24,7 @@ resource "google_logging_project_exclusion" "k8s_containers" {
   description = "Exclude k8s containers logs, except for from the whitelisted namespaces. Managed by Terraform."
 
   filter = <<EOT
-resource.type="k8s_container"
+resource.type="k8s_container" OR "container")
 ${length(var.exclude_k8s_containers_namespace_whistelist) > 0 ? "resource.labels.namespace_name!=(${join(" OR ", var.exclude_k8s_containers_namespace_whistelist)})" : ""}
 ${var.exclude_k8s_containers_severity_expression}
 ( ( trace:* sample(trace, ${var.exclude_k8s_containers_percent == 100 ? 1 : "0.${var.exclude_k8s_containers_percent}00000000000001"}) ) OR
@@ -42,7 +42,7 @@ resource "google_logging_project_exclusion" "k8s_system_nginx" {
   description = "Exclude k8s system nginx logs. Managed by Terraform."
 
   filter = <<EOT
-resource.type="k8s_container"
+resource.type=("k8s_container" OR "container")
 resource.labels.namespace_name="system"
 resource.labels.container_name="nginx"
 ${var.exclude_k8s_system_nginx_severity_expression}
