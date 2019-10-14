@@ -1,7 +1,7 @@
 // GCP Global Load Balancer
 variable "exclude_glb_percent" {
   type        = number
-  default     = 95
+  default     = 0
   description = "Percentage of GCP Global Load Balancer logs to be excluded"
 }
 
@@ -29,7 +29,7 @@ variable "exclude_k8s_containers_namespace_whistelist" {
 
 variable "exclude_k8s_containers_percent" {
   type        = number
-  default     = 100
+  default     = 0
   description = "Percentage of non-system k8s containers logs to be excluded"
 }
 
@@ -42,7 +42,7 @@ variable "exclude_k8s_containers_severity_expression" {
 // k8s system nginx
 variable "exclude_k8s_system_nginx_percent" {
   type        = number
-  default     = 100
+  default     = 0
   description = "Percentage of system nginx logs to be excluded"
 }
 
