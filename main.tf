@@ -69,3 +69,22 @@ ${var.exclude_k8s_system_nginx_severity_expression}
   ( NOT trace:* NOT operation.id:* sample(insertId, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) )
 EOT
 }
+
+// k8s legacy system nginx
+resource "google_logging_project_exclusion" "k8s_legacy_system_nginx" {
+  count      = var.exclude_k8s_system_nginx_percent > 0 ? 1 : 0
+  depends_on = [google_logging_project_exclusion.k8s_system_nginx] // API can handle one resource at the time only
+
+  name        = "k8s-legacy-system-nginx"
+  description = "Exclude k8s (legacy) system nginx logs. Managed by Terraform."
+
+  filter = <<EOT
+resource.type=("k8s_container" OR "container")
+resource.labels.namespace_id="system"
+resource.labels.container_name="nginx"
+${var.exclude_k8s_system_nginx_severity_expression}
+( ( trace:* sample(trace, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) OR
+  ( NOT trace:* operation.id:* sample(operation.id, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) OR
+  ( NOT trace:* NOT operation.id:* sample(insertId, ${var.exclude_k8s_system_nginx_percent == 100 ? 1 : "0.${var.exclude_k8s_system_nginx_percent}00000000000001"}) ) )
+EOT
+}
