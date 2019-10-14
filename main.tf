@@ -33,10 +33,28 @@ ${var.exclude_k8s_containers_severity_expression}
 EOT
 }
 
+// k8s legacy containers
+resource "google_logging_project_exclusion" "k8s_legacy_containers" {
+  count = var.exclude_k8s_containers_percent > 0 ? 1 : 0
+  depends_on = [google_logging_project_exclusion.k8s_containers] // API can handle one resource at the time only
+
+  name = "k8s-legacy-containers"
+  description = "Exclude k8s (legacy) containers logs, except for from the whitelisted namespaces. Managed by Terraform."
+
+  filter = <<EOT
+resource.type=("k8s_container" OR "container")
+${length(var.exclude_k8s_containers_namespace_whistelist) > 0 ? "resource.labels.namespace_id!=(${join(" OR ", var.exclude_k8s_containers_namespace_whistelist)})" : ""}
+${var.exclude_k8s_containers_severity_expression}
+( ( trace:* sample(trace, ${var.exclude_k8s_containers_percent == 100 ? 1 : "0.${var.exclude_k8s_containers_percent}00000000000001"}) ) OR
+  ( NOT trace:* operation.id:* sample(operation.id, ${var.exclude_k8s_containers_percent == 100 ? 1 : "0.${var.exclude_k8s_containers_percent}00000000000001"}) ) OR
+  ( NOT trace:* NOT operation.id:* sample(insertId, ${var.exclude_k8s_containers_percent == 100 ? 1 : "0.${var.exclude_k8s_containers_percent}00000000000001"}) ) )
+EOT
+}
+
 // k8s system nginx
 resource "google_logging_project_exclusion" "k8s_system_nginx" {
   count      = var.exclude_k8s_system_nginx_percent > 0 ? 1 : 0
-  depends_on = [google_logging_project_exclusion.k8s_containers] // API can handle one resource at the time only
+  depends_on = [google_logging_project_exclusion.k8s_legacy_containers] // API can handle one resource at the time only
 
   name        = "k8s-system-nginx"
   description = "Exclude k8s system nginx logs. Managed by Terraform."
